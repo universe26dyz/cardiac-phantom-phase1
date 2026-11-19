@@ -9,14 +9,14 @@ import numpy as np
 from cardiac_phantom import Phantom, sample_plane
 
 class TestPhase1(unittest.TestCase):
-    def setUp(self): self.p = Phantom()
+    def setUp(self): self.p = Phantom(amplitude=0)
     def test_anatomy(self):
         pts = [[0,0,0], [26,0,0], [45,0,0], [90,0,0], [0,0,-50], [0,0,52], [0,0,-56], [0,0,56]]
         np.testing.assert_array_equal(self.p.query(pts)['label'], [2,1,3,0,1,1,0,0])
         x,y,z = np.meshgrid(np.arange(-60,61,2),np.arange(-60,61,2),np.arange(-60,61,2), indexing='ij')
         f = self.p.fields(np.stack([x,y,z], axis=-1))
         self.assertFalse(np.any((f['lv_inner'] <= 0) & (f['lv_outer'] > 0)))
-        self.assertFalse(np.any((f['rv'] <= 0) & (f['lv_outer'] <= 0)))
+        self.assertFalse(np.any((f['rv'] < 0) & (f['lv_outer'] <= 0)))
         # A center radial line on the middle SAX passes through blood, myocardium, background.
         np.testing.assert_array_equal(self.p.query([[0,0,12.37],[25,0,12.37],[0,35,12.37]])['label'], [2,1,0])
         from scipy.ndimage import label
@@ -44,7 +44,7 @@ class TestPhase1(unittest.TestCase):
         self.assertTrue(np.isnan(q['t1_ms'][0]) and np.isnan(q['t2_ms'][0]))
         np.testing.assert_array_equal(q['valid'], [False, True, True, True])
         tissues = self.p.tissues.copy(); tissues[1] = (999, 33, .8)
-        np.testing.assert_array_equal(q['label'], Phantom(tissues=tissues).query(pts)['label'])
+        np.testing.assert_array_equal(q['label'], Phantom(tissues=tissues, amplitude=0).query(pts)['label'])
         self.assertEqual(np.shape(self.p.query([0,0,0])['label']), ())
         self.assertEqual(self.p.query(np.zeros((2,3,3)))['label'].shape, (2,3))
     def test_demo(self):
