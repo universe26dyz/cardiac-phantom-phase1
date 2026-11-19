@@ -14,7 +14,7 @@ from cardiac_phantom.phase3.signal import fingerprints,timing9
 def main():
     parser=argparse.ArgumentParser(); parser.add_argument('--output-root',default='/data2/dengyz/dataset/phantom/phase3'); parser.add_argument('--seed',type=int,default=123); parser.add_argument('--sigma',type=float,default=.002); args=parser.parse_args()
     out=Path(args.output_root)/datetime.now(timezone.utc).strftime('full_%Y%m%dT%H%M%S_%fZ'); out.mkdir(parents=True,exist_ok=False)
-    m=Motion(); n=32; spacing=3.; rr=1030.; offsets=np.array([-8/3,0,8/3]); w=np.full(3,1/3); grid=(np.arange(n)-(n-1)/2)*spacing; r,c=np.meshgrid(grid,grid,indexing='ij'); rng=np.random.default_rng(args.seed)
+    m=Motion(); n=32; spacing=4.; rr=1030.; offsets=np.array([-8/3,0,8/3]); w=np.full(3,1/3); grid=(np.arange(n)-(n-1)/2)*spacing; r,c=np.meshgrid(grid,grid,indexing='ij'); rng=np.random.default_rng(args.seed)
     definitions=[('sax',12,[0,0,1],[0,1,0],[1,0,0],np.linspace(-40,40,12)),('2ch',15,[1,0,0],[0,0,1],[0,1,0],np.linspace(-20,20,15)),('4ch',10,[0,1,0],[0,0,1],[1,0,0],np.linspace(-18,18,10))]
     meta=[]; noise_all=[]
     for si,(name,count,normal,row,col,positions) in enumerate(definitions):
