@@ -12,7 +12,7 @@ from . import sample_plane
 from .export import grid, sample_grid, save_maps, KEYS
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument('--output-root',default='runs'); ap.add_argument('--dt',type=float,default=.1); ap.add_argument('--frames',type=int,default=40); ap.add_argument('--spacing',type=float,default=2.); args=ap.parse_args()
+    ap=argparse.ArgumentParser(); ap.add_argument('--output-root',default='/data2/dengyz/dataset/phantom/phase2'); ap.add_argument('--dt',type=float,default=.1); ap.add_argument('--frames',type=int,default=40); ap.add_argument('--spacing',type=float,default=2.); args=ap.parse_args()
     out=Path(args.output_root)/datetime.now(timezone.utc).strftime('motion_%Y%m%dT%H%M%S_%fZ'); out.mkdir(parents=True)
     m=Motion(); shape,aff=grid(args.spacing); static=sample_grid(m.phantom.query,shape,aff); save_maps(out/'static_3d',static,aff)
     tmp=out/'scratch'; tmp.mkdir(); arrays={k:np.memmap(tmp/(k+'.dat'),mode='w+',dtype=np.uint8 if k in ('label','valid') else np.float32,shape=(*shape,args.frames)) for k in KEYS}

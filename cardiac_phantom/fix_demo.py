@@ -10,7 +10,7 @@ from . import Phantom, sample_plane
 from .export import grid, sample_grid, save_maps
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument('--output-root',default='runs'); args=ap.parse_args()
+    ap=argparse.ArgumentParser(); ap.add_argument('--output-root',default='/data2/dengyz/dataset/phantom/phase1_fix'); args=ap.parse_args()
     out=Path(args.output_root)/datetime.now(timezone.utc).strftime('fix_%Y%m%dT%H%M%S_%fZ'); out.mkdir(parents=True)
     p=Phantom(); shape,aff=grid(); maps=sample_grid(p.query,shape,aff); save_maps(out/'static_3d',maps,aff)
     views=[('SAX z=12.37 mm',[0,0,12.37],[1,0,0],[0,1,0]),('4CH y=0 mm',[0,0,0],[1,0,0],[0,0,1]),('interface SAX',[30,0,12.37],[1,0,0],[0,1,0])]
