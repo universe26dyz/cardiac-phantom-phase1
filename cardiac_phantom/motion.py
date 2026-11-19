@@ -29,7 +29,7 @@ class Motion:
         return self.phantom.local_to_world(q)+b
     def world_to_canonical(self,xyz,t,cardiac=True,respiratory=True):
         c,b=self.factors(t,cardiac,respiratory); q=self.phantom.world_to_local(np.asarray(xyz,dtype=float)-b)
-        target=np.linalg.norm(q[...,:2],axis=-1); lo=target.copy(); hi=target/(1-self.cardiac_amplitude*abs(c))
+        target=np.linalg.norm(q[...,:2],axis=-1); lo=target/(1+self.cardiac_amplitude*abs(c)); hi=target/(1-self.cardiac_amplitude*abs(c))
         for _ in range(55):
             r=(lo+hi)/2; value=r*(1-self.cardiac_amplitude*c*np.exp(-r*r/(2*self.sigma_mm**2)))
             lo=np.where(value<target,r,lo); hi=np.where(value>=target,r,hi)

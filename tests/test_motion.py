@@ -21,3 +21,17 @@ class MotionTests(unittest.TestCase):
             p=np.array([[31.99,0,0],[32.01,0,0]]); np.testing.assert_array_equal(m.query(m.canonical_to_world(p,t),t)['label'],[1,3])
     def test_world_changes(self):
         m=Motion(); self.assertNotEqual(m.query([20,0,0],0)['label'],m.query([20,0,0],.5,True,False)['label'])
+
+class InitialPhaseTests(unittest.TestCase):
+    def test_expansion_and_contraction_roundtrip(self):
+        angle = .37
+        rot = np.array([[np.cos(angle), 0, np.sin(angle)], [0, 1, 0], [-np.sin(angle), 0, np.cos(angle)]])
+        phantom = Phantom(rot, np.array([3., -5., 9.]))
+        points = np.array([[22., 0., 2.], [31.99, 0., 0.], [32.01, 0., 0.], [0., 0., 0.], [45., 2., 1.]])
+        for phase in (0., np.pi, 1.2):
+            motion = Motion(phantom, cardiac_phase=phase, respiratory_phase=.7)
+            for t in (0., .25, .5, 1.):
+                world = motion.canonical_to_world(points, t)
+                np.testing.assert_allclose(motion.world_to_canonical(world, t), points, atol=1e-9)
+                for key in ('label', 't1_ms', 't2_ms'):
+                    np.testing.assert_allclose(motion.query(world, t)[key], phantom.query(phantom.local_to_world(points))[key], equal_nan=True, atol=1e-9)
