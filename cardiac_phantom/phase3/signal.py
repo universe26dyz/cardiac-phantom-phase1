@@ -27,10 +27,10 @@ def _simulator():
     return module.TradSignalSimulator().eval(), module.TradProtocol(tr_ms=2.61, vps=87, ti_ms=(10.,100.))
 
 def fingerprints(t1, t2, timing):
-    t1,t2=np.broadcast_arrays(np.asarray(t1,dtype=np.float32),np.asarray(t2,dtype=np.float32))
+    t1,t2=np.broadcast_arrays(np.asarray(t1,dtype=np.float64),np.asarray(t2,dtype=np.float64))
     if np.any(~np.isfinite(t1)) or np.any(~np.isfinite(t2)) or np.any(t1<=0) or np.any(t2<=0): raise ValueError('only finite valid tissues allowed')
     simulator,protocol=_simulator(); flat1=t1.reshape(-1); flat2=t2.reshape(-1)
-    tt=torch.from_numpy(np.broadcast_to(np.asarray(timing,dtype=np.float32),(len(flat1),9)).copy())
+    tt=torch.from_numpy(np.broadcast_to(np.asarray(timing,dtype=np.float64),(len(flat1),9)).copy())
     with torch.no_grad():
-        result=simulator(torch.from_numpy(flat1.copy()),torch.from_numpy(flat2.copy()),torch.ones(len(flat1)),tt,protocol,normalize=False)
+        result=simulator(torch.from_numpy(flat1.copy()),torch.from_numpy(flat2.copy()),torch.ones(len(flat1), dtype=torch.float64),tt,protocol,normalize=False)
     return result.numpy().reshape((*t1.shape,10))
