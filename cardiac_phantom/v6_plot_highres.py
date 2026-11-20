@@ -6,7 +6,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 root=Path('/data2/dengyz/dataset/phantom/v6/l100_pilot_1p5mm_20261120T013453_650556Z')
-out=root/'signal_comparison_mind_12000';out.mkdir(exist_ok=False)
+out=root/'signal_comparison_mind_12000_v2';out.mkdir(exist_ok=False)
 summary={'geometry':{'pixel_spacing_mm':1.5,'slice_thickness_mm':8,'shape_rc':[256,256]},'source':'MIND-registered synthetic noisy inputs; final-model native-plane signal reprojection at optimized rigid poses; K=8 Gaussian PSF prediction','cases':[]}
 for case,recon in [('static','proposed_static_12000_mind'),('respiratory','proposed_respiratory_12000_mind')]:
  for view,idx in [('sax',6),('2ch',7),('4ch',5)]:
@@ -19,7 +19,7 @@ for case,recon in [('static','proposed_static_12000_mind'),('respiratory','propo
    np.testing.assert_allclose(observed,noisy,atol=0,rtol=0)
   err=pred-noisy;err_gt=pred-clean
   assert np.isfinite(pred[valid]).all()
-  vals=np.concatenate([clean.ravel(),noisy.ravel(),pred.ravel()]);scale=float(np.percentile(vals,99.8));emax=max(float(np.percentile(np.concatenate([abs(err[valid]),abs(err_gt[valid])]),99.8)),1e-9)
+  vals=np.concatenate([clean[valid].ravel(),noisy[valid].ravel(),pred[valid].ravel()]);scale=float(np.percentile(vals,99.8));emax=max(float(np.percentile(np.concatenate([abs(err[valid]),abs(err_gt[valid])]),99.8)),1e-9)
   fig,axes=plt.subplots(5,10,figsize=(22,11),constrained_layout=True)
   for h in range(10):
    for j,image in enumerate((clean[h],noisy[h],pred[h],np.where(valid[h],err[h],np.nan),np.where(valid[h],err_gt[h],np.nan))):
