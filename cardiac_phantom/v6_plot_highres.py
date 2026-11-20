@@ -6,11 +6,11 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 root=Path('/data2/dengyz/dataset/phantom/v6/l100_pilot_1p5mm_20261120T013453_650556Z')
-out=root/'signal_comparison_mind_12000_v2';out.mkdir(exist_ok=False)
+out=root/'signal_comparison_mind_12000_masked_v2';out.mkdir(exist_ok=False)
 summary={'geometry':{'pixel_spacing_mm':1.5,'slice_thickness_mm':8,'shape_rc':[256,256]},'source':'MIND-registered synthetic noisy inputs; final-model native-plane signal reprojection at optimized rigid poses; K=8 Gaussian PSF prediction','cases':[]}
-for case,recon in [('static','proposed_static_12000_mind'),('respiratory','proposed_respiratory_12000_mind')]:
+for case,recon in [('static','proposed_static_12000_mind_masked_v2'),('respiratory','proposed_respiratory_12000_mind_masked_v2')]:
  for view,idx in [('sax',6),('2ch',7),('4ch',5)]:
-  src=root/'prepared_mind_v3'/case/view/'qc_clean_and_mind_noisy.npz'
+  src=root/'prepared_mind_v4'/case/view/'qc_clean_and_mind_noisy.npz'
   predfile=root/recon/'evaluation/signal_psf_K8'/f'signal_reprojection_{view}.npz'
   with np.load(src) as d: clean=d['clean'][idx];noisy=d['noisy'][idx]
   with np.load(predfile) as d:
