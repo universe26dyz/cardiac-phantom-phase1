@@ -1,4 +1,4 @@
-"""Regenerate the 512x512, 1.5 mm, 2x heart, mirrored L100 phantom."""
+"""Regenerate 256x256 or 512x512, 1.5 mm, 2x heart, mirrored L100 phantom."""
 import argparse, json, shutil, subprocess
 from pathlib import Path
 from datetime import datetime, timezone
@@ -42,8 +42,8 @@ def main():
     ap.add_argument("--seed",type=int,default=123)
     ap.add_argument("--sigma",type=float,default=.002)
     a=ap.parse_args()
-    if (a.size,a.spacing_mm,a.heart_scale)!=(512,1.5,2.0):
-        raise ValueError("This regeneration is frozen at 512x512, 1.5 mm, 2x heart")
+    if a.size not in (256,512) or a.spacing_mm != 1.5 or a.heart_scale != 2.0:
+        raise ValueError("This regeneration supports 256/512, 1.5 mm, 2x heart")
     base=Phantom()
     phantom=ScaledMirroredPhantom(base,a.heart_scale)
     # Verify RV is on negative x, LV cavity remains centered.
@@ -51,7 +51,7 @@ def main():
     if labels != [3,0,2]:
         raise RuntimeError(f"mirrored chamber check failed (RV-, empty+, LV cavity): {labels}")
     motion=Motion(phantom=phantom); rng=np.random.default_rng(a.seed)
-    stamp=datetime.now(timezone.utc).strftime("l100_pilot_heart2x_mirrorx_%Y%m%dT%H%M%S_%fZ")
+    stamp=datetime.now(timezone.utc).strftime(f"l100_pilot_{a.size}x{a.size}_heart2x_mirrorx_%Y%m%dT%H%M%S_%fZ")
     out=Path(a.output_root)/stamp
     out.mkdir(parents=True,exist_ok=False)
     for case in ("static","respiratory"):
@@ -141,7 +141,7 @@ def main():
     fig.suptitle(f"SAX slice ID 6, HB5 | sampling PSF | {n}x{n}, {spacing:g} mm")
     fig.tight_layout(); fig.savefig(out/"psf_comparison.png",dpi=150); plt.close(fig)
     shutil.copy2(__file__,out/"generate_phantom.py")
-    manifest={"label":"L100 512x512 high-resolution mirrored, 2x-heart synthetic phantom; no reconstruction/training",
+    manifest={"label":f"L100 {n}x{n} mirrored, 2x-heart synthetic phantom; no reconstruction/training",
       "generator_git_head":subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip(),
       "array_order":"slice,heartbeat,row,column",
       "geometry":{"matrix_rc":[n,n],"spacing_rc_mm":[spacing,spacing],"fov_rc_mm":[n*spacing,n*spacing],
